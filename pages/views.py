@@ -149,15 +149,30 @@ def face_extract1():
                 # cv2.imshow("face",faces)
                 cv2.imwrite('pages/media/current/face1.jpg', faces)
                 break
+import os,shutil
+
 def compare_faces(request):
         face_extract()
         face_extract1()
 
-        known_image = face_recognition.load_image_file("pages/media/current/face.jpg")
-        unknown_image = face_recognition.load_image_file("pages/media/current/face1.jpg")
+        known_image = face_recognition.load_image_file("pages/media/current/doc.jpg")
+        unknown_image = face_recognition.load_image_file("pages/media/current/image.jpg")
 
         biden_encoding = face_recognition.face_encodings(known_image)[0]
         unknown_encoding = face_recognition.face_encodings(unknown_image)[0]
 
-        results = face_recognition.compare_faces([biden_encoding], unknown_encoding)
+        results = face_recognition.compare_faces([biden_encoding], unknown_encoding,tolerance=0.5)
+        # delete_in_folder_images()
         return HttpResponse(results)
+
+def delete_in_folder_images():
+        folder = 'pages/media/current'
+        for filename in os.listdir(folder):
+                file_path = os.path.join(folder, filename)
+                try:
+                        if os.path.isfile(file_path) or os.path.islink(file_path):
+                         os.unlink(file_path)
+                        elif os.path.isdir(file_path):
+                                shutil.rmtree(file_path)
+                except Exception as e:
+                        print('Failed to delete %s. Reason: %s' % (file_path, e))
