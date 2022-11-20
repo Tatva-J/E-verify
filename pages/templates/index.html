@@ -1,4 +1,3 @@
-
 {% extends 'common.html' %}
 {% load static %}
 
@@ -7,15 +6,26 @@
 {% endblock %}
 
 
-  {% block content %}
+{% block content %}
 
-    <div style="text-align:center">  
+<div style="text-align:center">
 
-       {% if user.is_authenticated %}
-        <p ><h1>welcome : {{ user.username }}</h1></p>
-        {% else %}
-        <p ><h1>unauthorised access</h1></p>
-        {% endif %}
-    </div>
+  {% if user.is_authenticated %}
+  <p>
+  <h1>welcome : {{ user.username }}</h1>
+  </p>
+  {% else %}
+  <p>
+  <h1>unauthorised access</h1>
+  </p>
+  {% endif %}
+</div>
+<form method="post" action="{% url 'get_doc' %}" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="file" name="myfile">
+  <br>
+  <br>
+  <button type="submit">Upload</button>
+</form>
 
-{% endblock %} 
+{% endblock %}

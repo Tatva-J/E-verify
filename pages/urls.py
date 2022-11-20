@@ -9,6 +9,9 @@ urlpatterns = [
     path('register/',views.register,name='register'),
     path('profile/',views.profile,name='profile'),
     path('common/',views.common,name='common'),
+    path('get_doc/',views.get_doc,name='get_doc'),
+    path('get_face/',views.get_face,name='get_face'),
+    path('compare_faces/',views.compare_faces,name='compare_faces'),
 
 ]
 

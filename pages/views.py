@@ -93,3 +93,71 @@ def profile(request):
 
 def common(request):
         return render(request,'common.html',{})
+from django.http import HttpResponse
+from django.core.files.storage import FileSystemStorage
+from django.shortcuts import redirect
+def get_doc(request):
+        if request.method == 'POST' and request.FILES['myfile']:
+                myfile = request.FILES['myfile']
+                fs = FileSystemStorage()
+                filename = fs.save("current/doc.jpg", myfile)
+                return redirect("get_face")
+                #!1.getting the doc as image in variable
+                #!2.passing that document in one function as param and return the cropped face only 
+                #!3.now that we have particular user face and cropped face,we will compare them both 
+                #! using opencv compare function and boom result will be True or False and we will show 
+                #! message accordingly that user verified or not.
+
+
+def get_face(request):
+ # generate frame by frame from camera
+    camera = cv2.VideoCapture(0)
+    while True:
+        # Capture frame-by-frame
+        success, frame1 = camera.read(0)  # read the camera frame
+        if not success:
+            break
+        else:
+            ret, buffer = cv2.imencode('.jpg', frame1)
+        #     frame = buffer.tobytes()
+            cv2.imwrite("pages/media/current/image.jpg", frame1)
+            camera.release() 
+            cv2.destroyAllWindows()
+            break
+    return redirect("compare_faces")
+
+import face_recognition
+def face_extract():
+        doc = cv2.imread("pages/media/current/doc.jpg")
+        gray = cv2.cvtColor(doc, cv2.COLOR_BGR2GRAY)
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades +'haarcascade_frontalface_alt2.xml')
+        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+        for (x, y, w, h) in faces:
+                cv2.rectangle(doc, (x, y), (x+w, y+h), (0, 0, 255), 2)
+                faces = doc[y:y + h, x:x + w]
+                # cv2.imshow("face",faces)
+                cv2.imwrite('pages/media/current/face.jpg', faces)
+                break
+def face_extract1():
+        doc = cv2.imread("pages/media/current/image.jpg")
+        gray = cv2.cvtColor(doc, cv2.COLOR_BGR2GRAY)
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades +'haarcascade_frontalface_alt2.xml')
+        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+        for (x, y, w, h) in faces:
+                cv2.rectangle(doc, (x, y), (x+w, y+h), (0, 0, 255), 2)
+                faces = doc[y:y + h, x:x + w]
+                # cv2.imshow("face",faces)
+                cv2.imwrite('pages/media/current/face1.jpg', faces)
+                break
+def compare_faces(request):
+        face_extract()
+        face_extract1()
+
+        known_image = face_recognition.load_image_file("pages/media/current/face.jpg")
+        unknown_image = face_recognition.load_image_file("pages/media/current/face1.jpg")
+
+        biden_encoding = face_recognition.face_encodings(known_image)[0]
+        unknown_encoding = face_recognition.face_encodings(unknown_image)[0]
+
+        results = face_recognition.compare_faces([biden_encoding], unknown_encoding)
+        return HttpResponse(results)
