@@ -26,3 +26,14 @@ class Document(models.Model):
     documents = models.FileField(upload_to='documents')
     document_status=models.CharField(max_length=12)
     user=models.ForeignKey(User,on_delete=models.CASCADE)
+
+class PersonalInfo(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    firstname= models.CharField(max_length=25)
+    lastname= models.CharField(max_length=25)
+    phonenumber= models.IntegerField()
+    email= models.EmailField()
+    occupation= models.CharField(max_length=30)
+    address = models.CharField(max_length=50)
+    document_status = models.CharField(max_length=50)
+    account_number = models.IntegerField()

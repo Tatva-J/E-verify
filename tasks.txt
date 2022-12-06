@@ -1,0 +1,5 @@
+1)image segmentation and finding face from it
+2)Image blurring and face cropping 
+3)A good looking front end 
+4)some bugs in backend with frontend
+5)Improve many things

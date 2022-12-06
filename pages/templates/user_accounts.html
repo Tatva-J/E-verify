@@ -1,0 +1,39 @@
+{% extends 'common.html' %}
+{% load static %}
+
+{% block head %}
+<title>User-Accounts</title>
+{% endblock %}
+
+
+{% block content %}
+{% for account in accounts %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<div class="card" style="height: 20rem;width: 30rem;">
+    <div class="card-body">
+        1.FirstName=> {{account.firstname}}
+        <br>
+        2.Account Number=> {{account.account_number}}
+        <br>
+        3.Emailid=> {{account.email}}
+        <br>
+    </div>
+
+    {% if account.document_status == "verified" %}
+
+    <center><a href="#">
+            <span class="glyphicon glyphicon-ok-circle" style="color:green"></span>
+        </a>VERIFIED</center>
+    {% else %}
+    <center><a href="#">
+            <span class="glyphicon glyphicon-ok-circle" style="color:red"></span>
+        </a>UNVERIFIED</center>
+    {% endif %}
+</div>
+<br>
+{% endfor %}
+
+
+{% endblock %}

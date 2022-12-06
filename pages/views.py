@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from .forms import LoginForm,Registrationform
 from django.contrib.auth import authenticate, login
 import os
-
+from .models import PersonalInfo,User
 from django.urls import path, include
 
 import face_recognition
@@ -53,9 +53,10 @@ def base(request):
                         if user is not None:
                                 if facedect(user.userprofile.head_shot.url):
                                         login(request,user)
-                                return redirect('index')
+                                return redirect('dashboard')
+                                
                         else:
-                                return redirect('index')        
+                                return redirect('index') #!Not sure whats this for       
         else:
                 MyLoginForm = LoginForm()
                 return render(request,"base.html",{"MyLoginForm": MyLoginForm})  
@@ -69,7 +70,8 @@ def home(request):
 
 def index(request):#!task:populate index page with the thing that you want.
     return render(request,"index.html",{})
-
+def dashboard(request):#!task:populate index page with the thing that you want.
+    return render(request,"personal_info.html",{})
 
 def register(request):
         if request.method =="POST":
@@ -176,3 +178,66 @@ def delete_in_folder_images():
                                 shutil.rmtree(file_path)
                 except Exception as e:
                         print('Failed to delete %s. Reason: %s' % (file_path, e))
+        
+def save_info(request):
+        user_id = request.POST.get("userid")
+        occupation = request.POST.get('dropdown')
+        first_name = request.POST.get('firstname') 
+        last_name = request.POST.get('lastname')
+        phone = request.POST.get('phone')
+        email = request.POST.get('email') 
+        address = request.POST.get('address') 
+        acc_no = request.POST.get('acc_no')
+        personal_info_object=PersonalInfo.objects.create(user=User.objects.get(pk=user_id),firstname=first_name,lastname= last_name,
+        phonenumber= phone,
+        email= email,
+        occupation= occupation,
+        address = address,
+        document_status = "unverified",
+        account_number = acc_no)
+        if personal_info_object:
+                myfile = request.FILES['myfile']
+                fs = FileSystemStorage()
+                filename = fs.save("current/doc.jpg", myfile)
+                camera = cv2.VideoCapture(0)
+                while True:
+                        # Capture frame-by-frame
+                        success, frame1 = camera.read(0)  # read the camera frame
+                        if not success:
+                                break
+                        else:
+                                ret, buffer = cv2.imencode('.jpg', frame1)
+                                #     frame = buffer.tobytes()
+                                cv2.imwrite("pages/media/current/image.jpg", frame1)
+                                camera.release() 
+                                cv2.destroyAllWindows()
+                                break
+                face_extract()
+                face_extract1()
+
+                known_image = face_recognition.load_image_file("pages/media/current/doc.jpg")
+                unknown_image = face_recognition.load_image_file("pages/media/current/image.jpg")
+
+                biden_encoding = face_recognition.face_encodings(known_image)[0]
+                unknown_encoding = face_recognition.face_encodings(unknown_image)[0]
+
+                results = face_recognition.compare_faces([biden_encoding], unknown_encoding,tolerance=0.5)
+                if results:
+                        user_prof_obj=PersonalInfo.objects.filter(user=user_id,account_number=acc_no)    
+                        
+                        for object in user_prof_obj:
+                                object.document_status="verified"
+                                object.save()
+                else:
+                        user_prof_obj=PersonalInfo.objects.filter(user=user_id,account_number=acc_no)    
+                        user_prof_obj.document_status="unverified"
+                        user_prof_obj.save()
+                return redirect("accounts_list_user")
+
+def accounts_list_user(request):
+        user_id=request.user.id
+        data=PersonalInfo.objects.filter(user=user_id)
+        context = {
+            "accounts": data,
+        }
+        return render(request,'user_accounts.html',context) 

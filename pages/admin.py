@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserProfile,Document
+from .models import UserProfile,Document,PersonalInfo
 # Register your models here.
 
-admin.site.register([UserProfile,Document])
+admin.site.register([UserProfile,Document,PersonalInfo])
