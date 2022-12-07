@@ -222,7 +222,8 @@ def save_info(request):
                 unknown_encoding = face_recognition.face_encodings(unknown_image)[0]
 
                 results = face_recognition.compare_faces([biden_encoding], unknown_encoding,tolerance=0.5)
-                if results:
+                print(results)
+                if results==True:
                         user_prof_obj=PersonalInfo.objects.filter(user=user_id,account_number=acc_no)    
                         
                         for object in user_prof_obj:
@@ -230,8 +231,10 @@ def save_info(request):
                                 object.save()
                 else:
                         user_prof_obj=PersonalInfo.objects.filter(user=user_id,account_number=acc_no)    
-                        user_prof_obj.document_status="unverified"
-                        user_prof_obj.save()
+                        
+                        for object in user_prof_obj:
+                                object.document_status="unverified"
+                                object.save()
                 return redirect("accounts_list_user")
 
 def accounts_list_user(request):
